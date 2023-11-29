@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "625125091387",
+    "project_id": "early-flash-flood-detection",
+    "storage_bucket": "early-flash-flood-detection.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:625125091387:android:72fbee1a038298ae07541e",
+        "android_client_info": {
+          "package_name": "com.effd"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGeAbBXaUGPul_bjmXOYUgOQ5l5tqCsbw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
