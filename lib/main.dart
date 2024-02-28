@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
-import 'android_flow/android_login_screen.dart';
-import 'web_flow/web_login_screen.dart';
+import 'models/dataGenerator.dart';
+import 'views/android_flow/android_login_screen.dart';
+import 'views/web_flow/web_login_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +18,10 @@ void main() async {
       appId: "1:625125091387:web:9f738a479d68d06a07541e",
     ),
   );
+
+    // Initialize and call DataGenerator here
+  final dataGenerator = DataGenerator();
+  await dataGenerator.ensureDailyDataGeneration();
   runApp(const MyApp());
 }
 
