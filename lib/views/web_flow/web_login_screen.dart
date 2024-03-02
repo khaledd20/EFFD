@@ -25,33 +25,103 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Web Login Screen'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            TextField(
-              controller: _usernameController,
-              decoration: InputDecoration(labelText: 'Username'),
+      body: Row(
+        children: [
+          // Left side with image and text
+          Expanded(
+            flex: 2, // takes 40% of the screen width
+            child: Container(
+              color: Color(0xFF0175c2),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  // Replace with your asset image for the flood illustration
+                  Image.asset('assets/flood_illustration.png', height: 300),
+                  Text(
+                    'Stay prepared for floods.',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      'Receive real-time flood alerts and manage your flood insurance.',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            TextField(
-              controller: _passwordController,
-              decoration: InputDecoration(labelText: 'Password'),
-              obscureText: true,
+          ),
+          // Right side with login form
+          Expanded(
+            flex: 3, // takes 60% of the screen width
+            child: Container(
+              padding: EdgeInsets.all(32),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    'Early Flash Flood Detection',
+                    style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 60),
+                  Text(
+                    'Log in',
+                    style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold, fontSize: 24),
+                  ),
+                  SizedBox(height: 20),
+                  TextField(
+                    controller: _usernameController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter your username',
+                      labelText: 'Username',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                  SizedBox(height: 20),
+                  TextField(
+                    controller: _passwordController,
+                    decoration: InputDecoration(
+                      hintText: 'Enter your password',
+                      labelText: 'Password',
+                      border: OutlineInputBorder(),
+                    ),
+                    obscureText: true,
+                  ),
+                  SizedBox(height: 40),
+                  ElevatedButton(
+                    onPressed: () => performLogin(),
+                    child: Text('Login'),
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.blue,
+                      onPrimary: Colors.white,
+                      minimumSize: Size(double.infinity, 50),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  OutlinedButton(
+                    onPressed: () => navigateToRegistration(),
+                    child: Text('Sign up'),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: Colors.blue),
+                      minimumSize: Size(double.infinity, 50),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            ElevatedButton(
-              onPressed: () => performLogin(),
-              child: Text('Login'),
-            ),
-            SizedBox(height: 20), // Adds space between buttons
-            TextButton(
-              onPressed: () => navigateToRegistration(),
-              child: Text("Don't have an account? Register"),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

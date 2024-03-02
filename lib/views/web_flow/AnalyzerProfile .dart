@@ -25,13 +25,13 @@ class _AnalyzerProfileState extends State<AnalyzerProfile> {
   }
 
   Future<void> _getUserData() async {
-    // Get the user data from Firestore
     DocumentSnapshot userSnapshot =
         await FirebaseFirestore.instance.collection('webUsers').doc(widget.userId).get();
 
     setState(() {
       _userName = userSnapshot['username'];
       _emailController.text = userSnapshot['email'];
+      // It's generally not secure to store and display passwords in clear text.
       _passwordController.text = userSnapshot['password'];
     });
   }
@@ -39,83 +39,101 @@ class _AnalyzerProfileState extends State<AnalyzerProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Analyzer Profile'),
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(20.0),
+      body: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              'Welcome $_userName', // Display the welcome message with the user's name
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
-            ),
-            SizedBox(height: 10.0),
-            Text(
-              'Email:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: _editEmail
-                      ? TextField(
-                          controller: _emailController,
-                          decoration: InputDecoration(
-                            hintText: 'Enter new email',
-                          ),
-                        )
-                      : Text(_emailController.text),
+          children: [
+            Container(
+              color: Color(0xFF0175c2),
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+              child: Text(
+                'Welcome $_userName',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20.0,
+                  color: Colors.white,
                 ),
-                IconButton(
-                  icon: Icon(Icons.edit),
-                  onPressed: () {
-                    setState(() {
-                      _editEmail = !_editEmail;
-                    });
-                  },
-                ),
-              ],
+              ),
             ),
-            SizedBox(height: 20.0),
-            Text(
-              'Password:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: _editPassword
-                      ? TextField(
-                          controller: _passwordController,
-                          obscureText: true,
-                          decoration: InputDecoration(
-                            hintText: 'Enter new password',
-                          ),
-                        )
-                      : Text(_passwordController.text.replaceAll(RegExp(r'.'), '*')), // Mask the password
-                ),
-                IconButton(
-                  icon: Icon(Icons.edit),
-                  onPressed: () {
-                    setState(() {
-                      _editPassword = !_editPassword;
-                    });
-                  },
-                ),
-              ],
-            ),
-            SizedBox(height: 20.0),
-            ElevatedButton(
-              onPressed: () => updateProfile(context),
-              child: Text('Update Profile'),
+            Padding(
+              padding: EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      border: OutlineInputBorder(),
+                      suffixIcon: _editEmail
+                          ? IconButton(
+                              icon: Icon(Icons.done),
+                              onPressed: () {
+                                setState(() {
+                                  _editEmail = false;
+                                  // Implement the logic to save the updated email
+                                });
+                              },
+                            )
+                          : IconButton(
+                              icon: Icon(Icons.edit),
+                              onPressed: () {
+                                setState(() {
+                                  _editEmail = true;
+                                });
+                              },
+                            ),
+                    ),
+                    readOnly: !_editEmail,
+                  ),
+                  SizedBox(height: 20.0),
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      border: OutlineInputBorder(),
+                      suffixIcon: _editPassword
+                          ? IconButton(
+                              icon: Icon(Icons.done),
+                              onPressed: () {
+                                setState(() {
+                                  _editPassword = false;
+                                  // Implement the logic to save the updated password
+                                });
+                              },
+                            )
+                          : IconButton(
+                              icon: Icon(Icons.edit),
+                              onPressed: () {
+                                setState(() {
+                                  _editPassword = true;
+                                });
+                              },
+                            ),
+                    ),
+                    readOnly: !_editPassword,
+                    obscureText: true,
+                  ),
+                  SizedBox(height: 20.0),
+                  ElevatedButton(
+                    onPressed: () => updateProfile(context),
+                    child: Text('Update Profile'),
+                    style: ElevatedButton.styleFrom(
+                      primary: Color(0xFF0175c2),
+                      onPrimary: Colors.white,
+                      minimumSize: Size(double.infinity, 50),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
       ),
     );
   }
+
+
 
   void updateProfile(BuildContext context) async {
     // Get the current user
