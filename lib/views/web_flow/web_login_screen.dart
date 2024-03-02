@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'AnalyzerProfile .dart';
+import 'WebRegistrationScreen .dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,16 +42,21 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
               obscureText: true,
             ),
             ElevatedButton(
-              onPressed: () => performLogin(context),
+              onPressed: () => performLogin(),
               child: Text('Login'),
+            ),
+            SizedBox(height: 20), // Adds space between buttons
+            TextButton(
+              onPressed: () => navigateToRegistration(),
+              child: Text("Don't have an account? Register"),
             ),
           ],
         ),
       ),
     );
   }
-//integrating the login funtion
-  void performLogin(BuildContext context) async {
+
+  Future<void> performLogin() async {
     String username = _usernameController.text;
     String password = _passwordController.text;
 
@@ -61,14 +68,28 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
         .get();
 
     if (users.docs.isNotEmpty) {
-      // Login successful
-      showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-          title: Text('Login Successful'),
-          content: Text('Welcome, $username!'),
-        ),
-      );
+      // Assuming the user data is in users.docs.first.data()
+      var userData = users.docs.first.data();
+
+      // Check if userId is null before accessing it
+      if (userData['userId'] != null) {
+        // Pass the user data to the analyzerProfile page
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AnalyzerProfile(userId: userData['userId']),
+          ),
+        );
+      } else {
+        // Handle case where userId is null
+        showDialog(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: Text('Error'),
+            content: Text('User data is incomplete.'),
+          ),
+        );
+      }
     } else {
       // Login failed
       showDialog(
@@ -79,5 +100,13 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
         ),
       );
     }
+  }
+
+  void navigateToRegistration() {
+    // Navigate to the registration screen
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => WebRegistrationScreen()),
+    );
   }
 }
