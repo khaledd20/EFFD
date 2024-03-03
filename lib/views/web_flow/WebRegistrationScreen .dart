@@ -39,7 +39,7 @@ class _WebRegistrationScreenState extends State<WebRegistrationScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   // Replace with your asset image for the flood illustration
-                  Image.asset('assets/flood_illustration.png', height: 300),
+                  Image.asset('images/kl_towers.png', height: 300),
                   Text(
                     'Stay prepared for floods.',
                     style: TextStyle(
