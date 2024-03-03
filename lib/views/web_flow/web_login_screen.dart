@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'AnalyzerDashboard .dart';
 import 'AnalyzerProfile .dart';
 import 'WebRegistrationScreen .dart';
 
@@ -36,7 +37,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   // Replace with your asset image for the flood illustration
-                  Image.asset('assets/flood_illustration.png', height: 300),
+                  Image.asset('images/kl_towers.png', height: 300),
                   Text(
                     'Stay prepared for floods.',
                     style: TextStyle(
@@ -146,9 +147,12 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
         // Pass the user data to the analyzerProfile page
         Navigator.push(
           context,
-          MaterialPageRoute(
+          /*MaterialPageRoute(
             builder: (context) => AnalyzerProfile(userId: userData['userId']),
-          ),
+          ),*/
+          MaterialPageRoute(
+          builder: (context) => AnalyzerDashboard(),
+        ),
         );
       } else {
         // Handle case where userId is null
