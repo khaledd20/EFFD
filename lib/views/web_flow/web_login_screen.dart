@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'AdminDashboardScreen.dart';
 import 'AnalyzerDashboard .dart';
 import 'AnalyzerProfile .dart';
 import 'WebRegistrationScreen .dart';
@@ -131,6 +132,16 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
     String username = _usernameController.text;
     String password = _passwordController.text;
 
+    // Check if the username and password match the admin credentials
+  if (username == "admin1" && password == "123456") {
+    // Navigate to the admin dashboard
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AdminDashboardScreen()),
+    );
+    return;
+  }
+    
     // Query Firebase collection
     var users = await firestore
         .collection('webUsers')

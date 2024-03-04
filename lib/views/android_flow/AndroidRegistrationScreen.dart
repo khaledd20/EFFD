@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'android_login_screen.dart'; // Import your Android login screen
+import 'package:firebase_auth/firebase_auth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +17,7 @@ class AndroidRegistrationScreen extends StatelessWidget {
   TextEditingController _confirmPasswordController = TextEditingController();
 
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
-
+  final FirebaseAuth auth = FirebaseAuth.instance;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,7 +106,68 @@ class AndroidRegistrationScreen extends StatelessWidget {
     );
   }
 
-  void performRegistration(BuildContext context) {
-    // Add your registration logic here
+  void performRegistration(BuildContext context) async {
+    String username = _usernameController.text.trim();
+    String email = _emailController.text.trim();
+    String password = _passwordController.text;
+    String confirmPassword = _confirmPasswordController.text;
+
+    if (username.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+      _showDialog(context, 'Error', 'All fields are required.');
+      return;
+    }
+
+    if (password.length < 8) {
+      _showDialog(context, 'Error', 'Password must be at least 8 characters long.');
+      return;
+    }
+
+    if (password != confirmPassword) {
+      _showDialog(context, 'Error', 'Passwords do not match.');
+      return;
+    }
+
+    try {
+      // Create user with email and password
+      UserCredential userCredential = await auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // Add user data to Firestore
+      await firestore.collection('androidUsers').doc(userCredential.user!.uid).set({
+        'userId': userCredential.user!.uid, // Assigning the UID as userId
+        'username': username,
+        'email': email,
+        'role': 'analyzer',
+        'password': password, // Consider using a more secure way to handle passwords
+      });
+
+      _showDialog(context, 'Success', 'Registration successful! Please login.', popOnClose: true);
+    } catch (e) {
+      _showDialog(context, 'Error', e.toString());
+    }
   }
+
+  void _showDialog(BuildContext context, String title, String content, {bool popOnClose = false}) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(title),
+        content: Text(content),
+        actions: [
+          TextButton(
+            child: Text('OK'),
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+              if (popOnClose) {
+                Navigator.of(context).pop(); // Optionally close the current screen
+              }
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
 }

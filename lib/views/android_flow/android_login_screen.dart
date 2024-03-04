@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'Admin_screen.dart';
 import 'AndroidProfileScreen .dart';
 import 'AndroidRegistrationScreen.dart';
+import 'viewer_dashboard.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -83,6 +85,16 @@ class AndroidLoginScreen extends StatelessWidget {
     String username = usernameController.text;
     String password = passwordController.text;
 
+     // Check if the username and password match the admin credentials
+  if (username == "admin2" && password == "123456") {
+    // Navigate to the admin dashboard
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AdminScreen()),
+    );
+    return;
+  }
+
     // Query Firebase collection
     var users = await firestore
         .collection('androidUsers')
@@ -96,9 +108,13 @@ class AndroidLoginScreen extends StatelessWidget {
       if (userData['userId'] != null) {
         Navigator.push(
           context,
-          MaterialPageRoute(
+          /*MaterialPageRoute(
             builder: (context) => AndroidProfileScreen(userId: userData['userId']),
+          ),*/
+          MaterialPageRoute(
+            builder: (context) => ViewerDashboard(),
           ),
+
         );
       } else {
         // Handle case where userId is null

@@ -41,6 +41,8 @@ dependencies:
   http: ^1.1.0
   firebase_auth: ^4.16.0
   email_validator: ^2.1.17
+  flutter_local_notifications: ^16.3.2
+  permission_handler: ^11.0.1
 
 dev_dependencies:
   flutter_test:
