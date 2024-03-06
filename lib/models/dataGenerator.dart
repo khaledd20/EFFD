@@ -41,16 +41,19 @@ Map<String, dynamic> _generateDataForTime(String timeOfDay) {
     }
   }
 
-  // Helper method to generate and save data for the specified day
+// Helper method to generate and save data for the specified day
 Future<void> _generateAndSaveDataForDay(DocumentReference documentReference, DateTime day) async {
   final times = ['6 am', '12 pm', '6 pm']; // Specified times of the day
   Map<String, dynamic> dailyData = {
     'date': day.toString(),
-    'dataPoints': times.map((time) => _generateDataForTime(time)).toList(),
+    'kuala_lumpur': times.map((time) => _generateDataForTime(time)).toList(),
+    'selangor': times.map((time) => _generateDataForTime(time)).toList(),
+    'sarawak': times.map((time) => _generateDataForTime(time)).toList(),
   };
 
   await documentReference.set(dailyData);
 }
+
 
   // Method to trigger flood analysis in main.py
   Future<void> triggerFloodAnalysis() async {
