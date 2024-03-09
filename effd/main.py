@@ -59,20 +59,22 @@ def analyze_flood():
         simulated_data_ref = db.collection('simulatedData').stream()
         features, labels, times_of_day = [], [], []
         for doc in simulated_data_ref:
-            data = doc.to_dict()
-            for point in data.get('dataPoints', []):
-                try:
-                    features.append([point['waterLevel'], point['humidity'], point['rainfallIntensity'], point['temperature']])
-                    water_level, humidity, time_of_day = point['waterLevel'], point['humidity'], point['timeOfDay']
-                    times_of_day.append(time_of_day)
-                    if water_level > 3.5 or humidity > 90:
-                        labels.append('High')  # High risk
-                    elif water_level > 2.5 or humidity > 80:
-                        labels.append('Moderate')  # Moderate risk
-                    else:
-                        labels.append('Low')  # Low risk
-                except KeyError as e:
-                    logging.error(f"Missing data in point: {e}")
+            doc_data = doc.to_dict()
+            for region in ['kuala_lumpur', 'sarawak', 'selangor']:
+                region_data = doc_data.get(region, [])
+                for point in region_data:
+                    try:
+                        features.append([point['waterLevel'], point['humidity'], point['rainfallIntensity'], point['temperature']])
+                        time_of_day = point['timeOfDay']
+                        times_of_day.append(time_of_day)
+                        if point['waterLevel'] > 3.5 or point['humidity'] > 90:
+                            labels.append('High')
+                        elif point['waterLevel'] > 2.5 or point['humidity'] > 80:
+                            labels.append('Moderate')
+                        else:
+                            labels.append('Low')
+                    except KeyError as e:
+                        logging.error(f"Missing data in point: {e}")
 
         if not features or not labels or not times_of_day:
             raise ValueError("No valid data points found for analysis.")
