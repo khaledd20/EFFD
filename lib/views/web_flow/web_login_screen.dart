@@ -105,8 +105,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
                     onPressed: () => performLogin(),
                     child: Text('Login'),
                     style: ElevatedButton.styleFrom(
-                      primary: Colors.blue,
-                      onPrimary: Colors.white,
+                      foregroundColor: Colors.white, backgroundColor: Colors.blue,
                       minimumSize: Size(double.infinity, 50),
                     ),
                   ),
@@ -161,9 +160,7 @@ class _WebLoginScreenState extends State<WebLoginScreen> {
           /*MaterialPageRoute(
             builder: (context) => AnalyzerProfile(userId: userData['userId']),
           ),*/
-          MaterialPageRoute(
-          builder: (context) => AnalyzerDashboard(),
-        ),
+          MaterialPageRoute(builder: (context) => AnalyzerDashboard(userId: userData['userId'])),
         );
       } else {
         // Handle case where userId is null

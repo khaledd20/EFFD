@@ -1,11 +1,94 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'AnalyzerProfile .dart';
+import 'web_login_screen.dart';
 
-class AnalyzerDashboard extends StatelessWidget {
+class AnalyzerDashboard extends StatefulWidget {
+  final String userId; // Define userId as a required parameter
+
+  const AnalyzerDashboard({Key? key, required this.userId}) : super(key: key);
+
+  @override
+  _AnalyzerDashboardState createState() => _AnalyzerDashboardState();
+}
+
+class _AnalyzerDashboardState extends State<AnalyzerDashboard> {
+  late Future<DocumentSnapshot<Map<String, dynamic>>> _userFuture; // Define the type of DocumentSnapshot
+
+  String _userName = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _userFuture = _getUserData();
+  }
+
+  Future<DocumentSnapshot<Map<String, dynamic>>> _getUserData() async {
+    return FirebaseFirestore.instance.collection('webUsers').doc(widget.userId).get();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Analyzer Dashboard'),
+        title: Text('Dashboard'),
+      ),
+      drawer: FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+        future: _userFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Drawer(
+              child: CircularProgressIndicator(),
+            );
+          }
+          if (snapshot.hasError) {
+            return Drawer(
+              child: Text('Error loading user data'),
+            );
+          }
+          var userData = snapshot.data?.data();
+          _userName = userData?['username'] ?? ''; // Update _userName with the username
+          return Drawer(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                DrawerHeader(
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                  ),
+                  child: Text(
+                    'Welcome: $_userName',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                    ),
+                  ),
+                ),
+                ListTile(
+                  title: Text('Profile'),
+                  onTap: () {
+                    Navigator.pop(context); // Close the drawer
+                    Navigator.push(
+                      context,
+                        MaterialPageRoute(builder: (context) => AnalyzerProfile(userId: userData?['userId'] ?? '')),
+                    );
+                  },
+                  
+                ),
+                ListTile(
+                  title: Text('Logout'),
+                  onTap: () {
+                    Navigator.pop(context); // Close the drawer
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => WebLoginScreen()),
+                    );
+                  },
+                ),
+              ],
+            ),
+          );
+        },
       ),
       body: ListView(
         children: [
@@ -71,8 +154,7 @@ class LocationCard extends StatelessWidget {
                 },
                 child: Text('Water Levels details'),
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.red,
-                  onPrimary: Colors.white,
+                  foregroundColor: Colors.white, backgroundColor: Colors.red,
                 ),
               ),
             ),
@@ -83,4 +165,4 @@ class LocationCard extends StatelessWidget {
   }
 }
 
-void main() => runApp(MaterialApp(home: AnalyzerDashboard()));
+void main() => runApp(MaterialApp(home: AnalyzerDashboard(userId: 'userId')));

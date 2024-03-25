@@ -125,8 +125,7 @@ class _WebRegistrationScreenState extends State<WebRegistrationScreen> {
                     onPressed: () => performRegistration(context),
                     child: Text('Sign up'),
                     style: ElevatedButton.styleFrom(
-                      primary: Colors.blue,
-                      onPrimary: Colors.white,
+                      foregroundColor: Colors.white, backgroundColor: Colors.blue,
                       minimumSize: Size(double.infinity, 50),
                     ),
                   ),

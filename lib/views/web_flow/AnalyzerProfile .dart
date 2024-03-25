@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'AnalyzerDashboard .dart';
+import 'web_login_screen.dart';
 
 class AnalyzerProfile extends StatefulWidget {
   final String userId;
@@ -18,10 +20,23 @@ class _AnalyzerProfileState extends State<AnalyzerProfile> {
   bool _editPassword = false;
   String _userName = '';
 
+  // Store the updated email and password
+  String _updatedEmail = '';
+  String _updatedPassword = '';
+
   @override
   void initState() {
     super.initState();
-    _getUserData();
+    // Initialize Firebase authentication
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (user != null) {
+        // User is signed in
+        _getUserData();
+      } else {
+        // User is signed out
+        // You might want to handle this case accordingly
+      }
+    });
   }
 
   Future<void> _getUserData() async {
@@ -31,7 +46,6 @@ class _AnalyzerProfileState extends State<AnalyzerProfile> {
     setState(() {
       _userName = userSnapshot['username'];
       _emailController.text = userSnapshot['email'];
-      // It's generally not secure to store and display passwords in clear text.
       _passwordController.text = userSnapshot['password'];
     });
   }
@@ -39,22 +53,51 @@ class _AnalyzerProfileState extends State<AnalyzerProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              color: Color(0xFF0175c2),
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+      appBar: AppBar(
+        title: Text('Profile page'),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
               child: Text(
                 'Welcome $_userName',
                 style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20.0,
                   color: Colors.white,
+                  fontSize: 24,
                 ),
               ),
             ),
+            ListTile(
+              title: Text('Dashboard'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AnalyzerDashboard(userId: widget.userId)),
+                );
+              },
+            ),
+            ListTile(
+              title: Text('Logout'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => WebLoginScreen()),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
             Padding(
               padding: EdgeInsets.all(20.0),
               child: Column(
@@ -71,7 +114,8 @@ class _AnalyzerProfileState extends State<AnalyzerProfile> {
                               onPressed: () {
                                 setState(() {
                                   _editEmail = false;
-                                  // Implement the logic to save the updated email
+                                  // Save the updated email
+                                  _updatedEmail = _emailController.text;
                                 });
                               },
                             )
@@ -98,7 +142,8 @@ class _AnalyzerProfileState extends State<AnalyzerProfile> {
                               onPressed: () {
                                 setState(() {
                                   _editPassword = false;
-                                  // Implement the logic to save the updated password
+                                  // Save the updated password
+                                  _updatedPassword = _passwordController.text;
                                 });
                               },
                             )
@@ -119,8 +164,8 @@ class _AnalyzerProfileState extends State<AnalyzerProfile> {
                     onPressed: () => updateProfile(context),
                     child: Text('Update Profile'),
                     style: ElevatedButton.styleFrom(
-                      primary: Color(0xFF0175c2),
-                      onPrimary: Colors.white,
+                      foregroundColor: Colors.white,
+                      backgroundColor: Color(0xFF0175c2),
                       minimumSize: Size(double.infinity, 50),
                     ),
                   ),
@@ -133,31 +178,40 @@ class _AnalyzerProfileState extends State<AnalyzerProfile> {
     );
   }
 
+ void updateProfile(BuildContext context) async {
+  // Get the current user
+  User? user = FirebaseAuth.instance.currentUser;
 
+  if (user != null) {
+    // Initialize updated email and password here
+    String updatedEmail = _emailController.text;
+    String updatedPassword = _passwordController.text;
 
-  void updateProfile(BuildContext context) async {
-    // Get the current user
-    User? user = FirebaseAuth.instance.currentUser;
+    try {
+      // Perform the update operation with Firestore using the updated email and password
+      await FirebaseFirestore.instance.collection('webUsers').doc(widget.userId).update({
+        'email': updatedEmail, // Use the updated email
+        'password': updatedPassword, // Use the updated password
+      });
 
-    if (user != null) {
-      try {
-        // Perform the update operation with Firestore
-        await FirebaseFirestore.instance.collection('webUsers').doc(widget.userId).update({
-          'email': _emailController.text,
-          'password': _passwordController.text,
-        });
-
-        // Show a success message or navigate to another screen
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Profile updated successfully')),
-        );
-      } catch (e) {
-        // Show an error message if update fails
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update profile')),
-        );
-        print(e.toString());
-      }
+      // Show a success message or navigate to another screen
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Profile updated successfully')),
+      );
+    } catch (e) {
+      // Show an error message if update fails
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to update profile')),
+      );
+      print(e.toString());
     }
+  } else {
+    // Handle the case when user is null (not logged in)
+    // You can prompt the user to log in or handle it according to your app's logic
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$_userName, you need to log in to update your profile')),
+    );
   }
+}
+
 }
