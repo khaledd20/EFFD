@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'AdminDashboardScreen.dart';
 import 'AnalyzerProfile .dart';
 import 'web_login_screen.dart';
 
@@ -48,7 +49,7 @@ class _AnalyzerDashboardState extends State<AnalyzerDashboard> {
           }
           var userData = snapshot.data?.data();
           _userName = userData?['username'] ?? ''; // Update _userName with the username
-          return Drawer(
+          return  Drawer(
             child: ListView(
               padding: EdgeInsets.zero,
               children: [
@@ -64,16 +65,25 @@ class _AnalyzerDashboardState extends State<AnalyzerDashboard> {
                     ),
                   ),
                 ),
-                ListTile(
+                /*ListTile(
                   title: Text('Profile'),
                   onTap: () {
                     Navigator.pop(context); // Close the drawer
                     Navigator.push(
                       context,
-                        MaterialPageRoute(builder: (context) => AnalyzerProfile(userId: userData?['userId'] ?? '')),
+                      MaterialPageRoute(builder: (context) => AnalyzerProfile(userId: userData?['userId'] ?? '')),
                     );
                   },
-                  
+                ),*/
+                ListTile(
+                  title: Text('Manage Users'),
+                  onTap: () {
+                    Navigator.pop(context); // Close the drawer
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => AdminDashboardScreen()),
+                    );
+                  },
                 ),
                 ListTile(
                   title: Text('Logout'),
@@ -87,7 +97,7 @@ class _AnalyzerDashboardState extends State<AnalyzerDashboard> {
                 ),
               ],
             ),
-          );
+        );
         },
       ),
       body: ListView(

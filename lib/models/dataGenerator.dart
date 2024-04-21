@@ -7,21 +7,22 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class DataGenerator {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-// Method to generate data for specific times of the day
-Map<String, dynamic> _generateDataForTime(String timeOfDay) {
-  final random = Random();
-  final season = ['Spring', 'Summer', 'Autumn', 'Winter'][random.nextInt(4)];
-  final rainfallIntensity = random.nextDouble() * 10; // Random rainfall intensity (0 to 10)
-  return {
-    'weather': ['Sunny', 'Rainy', 'Cloudy', 'Snowy'][random.nextInt(4)],
-    'humidity': random.nextInt(100), // 0 to 100%
-    'temperature': random.nextInt(35) + 5, // 5 to 40 degrees Celsius
-    'waterLevel': random.nextDouble() * 5, // 0 to 5 meters
-    'timeOfDay': timeOfDay,
-    'season': season,
-    'rainfallIntensity': rainfallIntensity,
-  };
-}
+  // Method to generate data for specific times of the day
+  Map<String, dynamic> _generateDataForTime(String timeOfDay) {
+    final random = Random();
+    final season = ['Spring', 'Summer', 'Autumn', 'Winter'][random.nextInt(4)];
+    final rainfallIntensity = random.nextDouble() * 10; // Random rainfall intensity (0 to 10)
+    final cloudCover = random.nextInt(80) + 20; // 20 to 100%
+    return {
+      'weather': ['Sunny', 'Rainy', 'Cloudy', 'Snowy'][random.nextInt(4)],
+      'humidity': random.nextInt(100), // 0 to 100%
+      'cloudCover': cloudCover,
+      'waterLevel': random.nextDouble() * 5, // 0 to 5 meters
+      'timeOfDay': timeOfDay,
+      'season': season,
+      'rainfallIntensity': rainfallIntensity,
+    };
+  }
 
   // Method to check and generate data for today if not already generated
   Future<void> ensureDailyDataGeneration() async {
@@ -41,19 +42,18 @@ Map<String, dynamic> _generateDataForTime(String timeOfDay) {
     }
   }
 
-// Helper method to generate and save data for the specified day
-Future<void> _generateAndSaveDataForDay(DocumentReference documentReference, DateTime day) async {
-  final times = ['6 am', '12 pm', '6 pm']; // Specified times of the day
-  Map<String, dynamic> dailyData = {
-    'date': day.toString(),
-    'kuala_lumpur': times.map((time) => _generateDataForTime(time)).toList(),
-    'selangor': times.map((time) => _generateDataForTime(time)).toList(),
-    'sarawak': times.map((time) => _generateDataForTime(time)).toList(),
-  };
+  // Helper method to generate and save data for the specified day
+  Future<void> _generateAndSaveDataForDay(DocumentReference documentReference, DateTime day) async {
+    final times = ['6 am', '12 pm', '6 pm']; // Specified times of the day
+    Map<String, dynamic> dailyData = {
+      'date': day.toString(),
+      'Gombak': times.map((time) => _generateDataForTime(time)).toList(),
+      'Kajang': times.map((time) => _generateDataForTime(time)).toList(),
+      'Ampang': times.map((time) => _generateDataForTime(time)).toList(),
+    };
 
-  await documentReference.set(dailyData);
-}
-
+    await documentReference.set(dailyData);
+  }
 
   // Method to trigger flood analysis in main.py
   Future<void> triggerFloodAnalysis() async {
