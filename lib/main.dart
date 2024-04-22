@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'models/dataGenerator.dart';
 import 'views/android_flow/android_login_screen.dart';
+import 'views/android_flow/viewer_dashboard.dart';
 import 'views/web_flow/web_login_screen.dart';
 
 void main() async {
@@ -33,7 +34,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'EFFD',
       builder: EasyLoading.init(),
-      home: kIsWeb ? WebLoginScreen() : AndroidLoginScreen(),
+      home: kIsWeb ? WebLoginScreen() : ViewerDashboard(),
     );
   }
 }
