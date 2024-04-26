@@ -65,7 +65,7 @@ class _AnalyzerDashboardState extends State<AnalyzerDashboard> {
                     ),
                   ),
                 ),
-                /*ListTile(
+                ListTile(
                   title: Text('Profile'),
                   onTap: () {
                     Navigator.pop(context); // Close the drawer
@@ -74,7 +74,7 @@ class _AnalyzerDashboardState extends State<AnalyzerDashboard> {
                       MaterialPageRoute(builder: (context) => AnalyzerProfile(userId: userData?['userId'] ?? '')),
                     );
                   },
-                ),*/
+                ),
                 ListTile(
                   title: Text('Manage Users'),
                   onTap: () {
