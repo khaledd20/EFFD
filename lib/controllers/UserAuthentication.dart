@@ -1,4 +1,3 @@
-// filename: UserAuthentication.dart
 import 'package:flutter/material.dart';
 import '../models/UserManagement.dart';
 import '../views/LoginScreen.dart';

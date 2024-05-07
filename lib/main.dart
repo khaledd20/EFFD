@@ -4,8 +4,6 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'models/FloodData.dart';
 import 'views/LoginScreen.dart';
-import 'views/android_flow/android_login_screen.dart';
-import 'views/web_flow/web_login_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
