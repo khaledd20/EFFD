@@ -36,6 +36,7 @@ class UserManagement {
     }
   }
 
+
   void showCustomDialog(BuildContext context, String title, String content, {bool popOnClose = false}) {
     showDialog(
       context: context,

@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import '../models/UserManagement.dart';
+import '../models/ProfileManagement.dart';
 import '../views/LoginScreen.dart';
 import '../views/RegistrationScreen.dart';
 import '../views/UserProfileScreen.dart';
 
 class UserAuthentication {
   final UserManagement userManagement = UserManagement();
+  final ProfileManagement profileManagement = ProfileManagement();
 
   Future<void> performLogin(BuildContext context, String username, String password) async {
     var userData = await userManagement.authenticateUser(username, password);
     if (userData != null) {
-      Navigator.push(context, MaterialPageRoute(builder: (context) => UserProfileScreen(userData: userData)));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => UserProfileScreen(userId: userData['userId'])));
     } else {
       showDialog(
         context: context,
@@ -25,6 +27,7 @@ class UserAuthentication {
   void navigateToRegistration(BuildContext context) {
     Navigator.push(context, MaterialPageRoute(builder: (context) => RegistrationScreen()));
   }
+
 
   void navigateToLogin(BuildContext context) {
     Navigator.push(context, MaterialPageRoute(builder: (context) => LoginScreen()));

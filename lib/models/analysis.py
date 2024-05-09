@@ -14,7 +14,7 @@ import numpy as np
 import logging
 
 # Initialize Firebase Admin SDK
-cred = credentials.Certificate(r'C:\Users\khali\Desktop\early_flash_flood_detection\lib\models\early-flash-flood-detection-firebase-adminsdk-vpxfs-5eb9edf55c.json')
+cred = credentials.Certificate(r'C:\Users\khali\Desktop\early_flash_flood_detection\lib\early-flash-flood-detection-firebase-adminsdk-vpxfs-5eb9edf55c.json')
 initialize_app(cred, {'storageBucket': 'early-flash-flood-detection.appspot.com'})  
 db = firestore.client()
 bucket = storage.bucket()
