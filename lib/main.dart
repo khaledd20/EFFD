@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'models/FloodData.dart';
+import 'models/dataSimulator.dart';
 import 'views/LoginScreen.dart';
 
 void main() async {

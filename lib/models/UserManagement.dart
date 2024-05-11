@@ -16,6 +16,26 @@ class UserManagement {
     }
     return null;
   }
+  Future<bool> advancedcreateUser(String username, String email, String password, String role, String collection) async {
+  try {
+    UserCredential userCredential = await auth.createUserWithEmailAndPassword(email: email, password: password);
+
+    // Determine the collection based on the role
+    String collectionName = role == 'analyzer' ? 'webUsers' : 'androidUsers';
+
+    await firestore.collection(collectionName).doc(userCredential.user!.uid).set({
+      'username': username,
+      'email': email,
+      'password': password, // Note: Storing passwords in plain text is insecure
+      'role': role,
+      'userId': userCredential.user!.uid
+    });
+    return true;
+  } catch (e) {
+    print(e.toString());
+    return false;
+  }
+}
 
   Future<bool> createUser(String username, String email, String password, String role) async {
     try {

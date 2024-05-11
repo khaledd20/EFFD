@@ -21,6 +21,16 @@ class ProfileManagement {
     }
   }
 
+  Future<bool> advancedUpdateProfileData(String userId, Map<String, dynamic> updatedData, String collection) async {
+    try {
+      await firestore.collection(collectionName).doc(userId).update(updatedData);
+      return true;
+    } catch (e) {
+      print("Failed to update profile data: $e");
+      return false;
+    }
+  }
+
   Future<bool> updateEmail(String userId, String newEmail) async {
     try {
       await firestore.collection(collectionName).doc(userId).update({'email': newEmail});
