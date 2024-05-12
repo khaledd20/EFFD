@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../controllers/FloodEventAnalysis.dart'; // Importing the controller
+import '../views/NotificationsScreen.dart';
+import '../views/UserProfileScreen.dart';
+import '../views/LoginScreen.dart';
 
 class ViewerDashboard extends StatefulWidget {
   final String userId;
@@ -18,6 +21,49 @@ class _ViewerDashboardState extends State<ViewerDashboard> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Flood Status Page'),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text(
+                'Hello, John!',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.account_circle),
+              title: Text('Profile'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => UserProfileScreen(userId: widget.userId)));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.notifications),
+              title: const Text('Notifications'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => NotificationsScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.exit_to_app),
+              title: Text('Logout'),
+              onTap: () {
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+              },
+            ),
+          ],
+        ),
       ),
       body: StreamBuilder<List<Map<String, dynamic>>>(
         stream: floodEventAnalysis.getFloodDataBasedOnTime(), // Using controller method
