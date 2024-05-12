@@ -5,7 +5,8 @@ import '../views/LoginScreen.dart';
 import '../views/RegistrationScreen.dart';
 import '../views/AdminDashboardView.dart';
 import '../views/analyzerDashboard.dart'; 
-
+import '../views/ViewerDashboard.dart';  // Import ViewerDashboard if not already done
+import 'package:flutter/foundation.dart' show kIsWeb;
 class UserAuthentication {
   final UserManagement userManagement = UserManagement();
   final ProfileManagement profileManagement = ProfileManagement();
@@ -21,7 +22,16 @@ class UserAuthentication {
     // Perform regular user authentication
     var userData = await userManagement.authenticateUser(username, password);
     if (userData != null) {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AnalyzerDashboard(userId: userData['userId'])));
+      String userId = userData['userId'];
+      // Check for platform and role to determine the dashboard
+      if (kIsWeb) {
+        // For web users, depending on role navigate to respective dashboards
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => AnalyzerDashboard(userId: userId)));
+        
+      } else {
+        // For Android users, you might want to use the same logic or keep it specific to roles
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => ViewerDashboard(userId: userId)));
+      }
     } else {
       showDialog(
         context: context,
@@ -32,7 +42,6 @@ class UserAuthentication {
       );
     }
   }
-
   void navigateToRegistration(BuildContext context) {
     Navigator.push(context, MaterialPageRoute(builder: (context) => RegistrationScreen()));
   }

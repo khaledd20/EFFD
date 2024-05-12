@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
+import 'package:early_flash_flood_detection/views/UserProfileScreen.dart';
+import 'package:early_flash_flood_detection/views/LoginScreen.dart';
 
 class AnalyzerDashboard extends StatelessWidget {
   final String userId;
@@ -36,14 +38,15 @@ class AnalyzerDashboard extends StatelessWidget {
               leading: Icon(Icons.account_circle),
               title: Text('Profile'),
               onTap: () {
-                Navigator.pushNamed(context, '/profile', arguments: userId);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => UserProfileScreen(userId: userId)));
               },
             ),
             ListTile(
               leading: Icon(Icons.exit_to_app),
               title: Text('Logout'),
               onTap: () {
-                Navigator.pushReplacementNamed(context, '/login');
+                // Navigate to LoginScreen
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
               },
             ),
           ],

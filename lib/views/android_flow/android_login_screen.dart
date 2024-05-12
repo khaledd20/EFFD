@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'Admin_screen.dart';
 import 'AndroidProfileScreen .dart';
 import 'AndroidRegistrationScreen.dart';
-import 'viewer_dashboard.dart';
+import '../ViewerDashboard.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -102,7 +102,7 @@ class AndroidLoginScreen extends StatelessWidget {
         .where('password', isEqualTo: password)
         .get();
 
-    if (users.docs.isNotEmpty) {
+   /* if (users.docs.isNotEmpty) {
       // Login successful
       var userData = users.docs.first.data();
       if (userData['userId'] != null) {
@@ -135,7 +135,7 @@ class AndroidLoginScreen extends StatelessWidget {
           content: Text('Invalid username or password.'),
         ),
       );
-    }
+    }*/
   }
 
   void navigateToRegistration(BuildContext context) {
