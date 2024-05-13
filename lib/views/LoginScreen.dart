@@ -60,7 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Image.asset('assets/images/kl_towers.png', height: 300), // Ensure the image path is correct
+          Image.asset('assets/images/kl_towers.png', height: 500), // Ensure the image path is correct
           Text(
             'Stay prepared for floods.',
             style: TextStyle(

@@ -14,6 +14,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   final ProfileManagement profileManagement = ProfileManagement();
   Map<String, dynamic>? userData;
   bool isLoading = true;
+  bool isEditing = false;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -28,7 +29,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     if (userData != null) {
       _emailController.text = userData!['email'] ?? '';
       _passwordController.text = userData!['password'] ?? '';
-
       setState(() => isLoading = false);
     }
   }
@@ -56,37 +56,87 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     }
 
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    setState(() => isEditing = false);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("User Profile")),
+      appBar: AppBar(
+        title: Text("User Profile"),
+        backgroundColor: Colors.blue,
+      ),
       body: isLoading
-        ? CircularProgressIndicator()
-        : SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                children: [
-                  TextField(
-                    controller: _emailController,
-                    decoration: InputDecoration(labelText: 'Email'),
-                  ),
-                  TextField(
-                    controller: _passwordController,
-                    decoration: InputDecoration(labelText: 'New Password', hintText: 'Enter new password if changing'),
-                    obscureText: true,
-                  ),
-                  SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: updateUserData,
-                    child: Text('Save Changes'),
-                  ),
-                ],
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: CircleAvatar(
+                        radius: 60,  // Slightly larger for easier visibility on mobile
+                        backgroundColor: Colors.blueGrey,
+                        child: userData!['profilePicture'] != null
+                          ? ClipOval(
+                              child: Image.network(userData!['profilePicture'], fit: BoxFit.cover, width: 120, height: 120)
+                            )
+                          : Icon(Icons.person, size: 60, color: Colors.white),  // Larger icon for mobile
+                      ),
+                    ),
+                    SizedBox(height: 30),
+                    Text('Email', style: TextStyle(color: Colors.blueAccent, fontSize: 18, fontWeight: FontWeight.bold)),
+                    TextField(
+                      controller: _emailController,
+                      decoration: InputDecoration(
+                        hintText: 'Enter your email',
+                        border: OutlineInputBorder(),
+                        filled: true,
+                        fillColor: Colors.white,
+                        enabled: isEditing,
+                      ),
+                    ),
+                    SizedBox(height: 15),
+                    Text('Password', style: TextStyle(color: Colors.blueAccent, fontSize: 18, fontWeight: FontWeight.bold)),
+                    TextField(
+                      controller: _passwordController,
+                      decoration: InputDecoration(
+                        hintText: 'Enter new password',
+                        border: OutlineInputBorder(),
+                        filled: true,
+                        fillColor: Colors.white,
+                        enabled: isEditing,
+                        
+                      ),
+                    ),
+                    SizedBox(height: 30),
+                    if (isEditing)
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: updateUserData,
+                          child: Text('Save Changes'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            padding: EdgeInsets.symmetric(horizontal: 60, vertical: 20),  // Larger button for easier touch
+                          ),
+                        ),
+                      )
+                    else
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: () => setState(() => isEditing = true),
+                          child: Text('Edit Profile'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            padding: EdgeInsets.symmetric(horizontal: 60, vertical: 20),  // Larger button for easier touch
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
-          ),
     );
   }
 }

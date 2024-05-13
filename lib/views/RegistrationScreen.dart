@@ -28,7 +28,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Image.asset('images/kl_towers.png', height: 300), // Adjust the image path as necessary
+                  Image.asset('images/kl_towers.png', height: 500), // Adjust the image path as necessary
                   Text(
                     'Stay prepared for floods.',
                     style: TextStyle(
