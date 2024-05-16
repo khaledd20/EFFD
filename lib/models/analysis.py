@@ -12,12 +12,10 @@ from sklearn.model_selection import KFold, train_test_split, GridSearchCV
 from sklearn.metrics import accuracy_score, classification_report
 import numpy as np
 import logging
-# Initialize Firebase Admin SDK
-#cred = credentials.Certificate(r'C:\Users\khali\Desktop\early_flash_flood_detection\lib\early-flash-flood-detection-firebase-adminsdk-vpxfs-5eb9edf55c.json')
-#cred = credentials.Certificate(r'C:\Users\USER\Desktop\EFFD\lib\early-flash-flood-detection-firebase-adminsdk-vpxfs-5eb9edf55c.json')
 
+# Initialize Firebase Admin SDK
 cred = credentials.Certificate(r'C:\Users\khali\Desktop\early_flash_flood_detection\lib\early-flash-flood-detection-firebase-adminsdk-vpxfs-5eb9edf55c.json')
-initialize_app(cred, {'storageBucket': 'early-flash-flood-detection.appspot.com'})  
+initialize_app(cred, {'storageBucket': 'early-flash-flood-detection.appspot.com'})
 db = firestore.client()
 bucket = storage.bucket()
 
@@ -43,60 +41,38 @@ def preprocess_data(data):
         return features
     except Exception as e:
         logging.error(f"Error processing data: {e}")
-        return np.array([])  # Return an empty array if there's an error
-
+        return np.array([])
 
 # Function to select the best model
 def select_best_model(X_train, y_train):
-    # Number of data points needs to be at least equal to the number of folds for KFold cross-validation
-    num_folds = min(len(X_train), 5)  # Use all data points if less than 5, otherwise use 5-fold
-
-    # If less than 2 folds, we cannot perform cross-validation
+    num_folds = min(len(X_train), 5)
     if num_folds < 2:
         logging.error("Not enough data points for any kind of cross-validation.")
         return None
-
     logging.info(f"Performing {num_folds}-fold cross-validation.")
     cv = KFold(n_splits=num_folds)
-
-    param_grid = {
-        'n_estimators': [100, 200],
-        'max_depth': [4, 8]
-    }
-
+    param_grid = {'n_estimators': [100, 200], 'max_depth': [4, 8]}
     grid_search = GridSearchCV(RandomForestClassifier(), param_grid=param_grid, scoring='accuracy', cv=cv)
     grid_search.fit(X_train, y_train)
-
     return grid_search.best_estimator_
 
-
-
-# Function to calculate flood risk score
 def calculate_risk_score(point):
-    # Define risk weights for each factor
-    weather_weights = {'Sunny': 0, 'Rainy': 3, 'Cloudy': 1, 'Snowy': 2}
-    humidity_threshold = 75
+    weather_weights = {'Sunny': 0, 'Rainy': 2, 'Cloudy': 1, 'Snowy': 1}  # Reduced impact of Rainy and Snowy
+    humidity_threshold = 85  # Increased threshold for humidity
     humidity_weight = 1
-    cloud_cover_threshold = 50
+    cloud_cover_threshold = 60  # Increased threshold for significant cloud cover effect
     cloud_cover_weight = 1
     water_level_threshold_low = 1
-    water_level_threshold_high = 2
-    water_level_weights = {'Low': 0, 'Moderate': 2, 'High': 4}
-    rainfall_intensity_thresholds = {'Low': 2, 'Moderate': 5, 'High': float('inf')}
-    rainfall_intensity_weights = {'Low': 0, 'Moderate': 2, 'High': 4}
+    water_level_threshold_high = 3  # Adjusted for a more realistic moderate risk
+    water_level_weights = {'Low': 0, 'Moderate': 1, 'High': 3}  # Adjusted weights
+    rainfall_intensity_thresholds = {'Low': 2, 'Moderate': 5, 'High': 8}  # Adjusted for higher impact only at higher levels
+    rainfall_intensity_weights = {'Low': 0, 'Moderate': 1, 'High': 3}  # Reduced impact unless very high
 
-    # Start with weather risk weight
     total_weight = weather_weights.get(point.get('weather', 'Sunny'), 0)
-
-    # Add humidity weight if above threshold
     if point.get('humidity', 0) > humidity_threshold:
         total_weight += humidity_weight
-
-    # Add cloud cover weight if above threshold
     if point.get('cloudCover', 0) > cloud_cover_threshold:
         total_weight += cloud_cover_weight
-
-    # Determine water level risk weight
     water_level = point.get('waterLevel', 0)
     if water_level < water_level_threshold_low:
         total_weight += water_level_weights['Low']
@@ -104,15 +80,66 @@ def calculate_risk_score(point):
         total_weight += water_level_weights['Moderate']
     else:
         total_weight += water_level_weights['High']
-
-    # Determine rainfall intensity risk weight
     for intensity, threshold in rainfall_intensity_thresholds.items():
         if point.get('rainfallIntensity', 0) <= threshold:
             total_weight += rainfall_intensity_weights[intensity]
             break
 
-    # Return the risk category based on the total risk weight
-    return 'Low Risk' if total_weight <= 5 else 'Moderate Risk' if total_weight <= 7 else 'High Risk'
+    return 'Low Risk' if total_weight <= 3 else 'Moderate Risk' if total_weight <= 5 else 'High Risk'
+
+
+# Function to create and save bar charts for flood risk times
+def bar_chart(flood_risk_times, region_name):
+    times = ['6 am', '12 pm', '6 pm']
+    risk_levels = [flood_risk_times.get(time, 'No Data') for time in times]
+    risk_values = {'Low Risk': 1, 'Moderate Risk': 2, 'High Risk': 3, 'No Data': 0}
+    values = [risk_values[risk] for risk in risk_levels]
+
+    # Filter out 'No Data' entries
+    valid_times = [time for time, risk in zip(times, risk_levels) if risk != 'No Data']
+    valid_values = [value for value in values if value != 0]
+
+    plt.figure(figsize=(10, 6))
+    bars = plt.bar(valid_times, valid_values, color='green')  # Use a single color for all bars
+    plt.xlabel('Time of Day')
+    plt.ylabel('Flood Risk Level')
+    plt.title(f'Flood Risk Chart for {region_name}')
+    plt.ylim(0, 4)
+    plt.xticks(valid_times)
+    plt.yticks([1, 2, 3], ['Low Risk', 'Moderate Risk', 'High Risk'])
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    plt.close()
+    buf.seek(0)
+    return save_plot_to_firebase(buf, f"{region_name}_flood_risk_bar_{datetime.now().strftime('%Y%m%d%H%M%S')}.png")
+
+# Function to create and save line charts for flood risk times
+def line_chart(flood_risk_times, region_name):
+    times = ['6 am', '12 pm', '6 pm']
+    risk_levels = [flood_risk_times.get(time, 'No Data') for time in times]
+    risk_values = {'Low Risk': 1, 'Moderate Risk': 2, 'High Risk': 3, 'No Data': 0}
+    values = [risk_values[risk] for risk in risk_levels]
+
+    # Filter out 'No Data' entries and adjust for starting from the bottom
+    valid_times = ['Start'] + [time for time, risk in zip(times, risk_levels) if risk != 'No Data']
+    valid_values = [0] + [value for value in values if value != 0]  # Start from 0
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(valid_times, valid_values, marker='o', linestyle='-', color='blue')  # Consistent color and line style
+    plt.xlabel('Time of Day')
+    plt.ylabel('Flood Risk Level')
+    plt.title(f'Flood Risk Line Chart for {region_name}')
+    plt.ylim(0, 4)
+    plt.xticks(valid_times, ['Start'] + [time for time in times if flood_risk_times.get(time, 'No Data') != 'No Data'])
+    plt.yticks([0, 1, 2, 3], ['No Data', 'Low Risk', 'Moderate Risk', 'High Risk'])
+    plt.grid(True)
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    plt.close()
+    buf.seek(0)
+    return save_plot_to_firebase(buf, f"{region_name}_flood_risk_line_{datetime.now().strftime('%Y%m%d%H%M%S')}.png")
 
 
 
@@ -131,7 +158,6 @@ def analyze_flood():
             doc_data = doc.to_dict()
             for region in region_aggregated_data.keys():
                 region_data = doc_data.get(region, [])
-                # Assuming each region_data is a list of dictionaries
                 region_aggregated_data[region].extend(region_data)
 
         # Process the aggregated data for each region
@@ -174,7 +200,6 @@ def analyze_flood():
             X_train = X_train_other
             y_train = y_train_other
 
-
             # Select and train the best model
             best_model = select_best_model(X_train, y_train)
             if best_model:
@@ -185,7 +210,7 @@ def analyze_flood():
                 accuracy = accuracy_score(y_test, predicted_labels)
                 report = classification_report(y_test, predicted_labels, zero_division=1)
 
-                 # Calculate flood risk for each time
+                # Calculate flood risk for each time
                 flood_risk_times = {}
                 for time in ['6 am', '12 pm', '6 pm']:
                     logging.debug(f"Available times in data: {[d['timeOfDay'] for d in region_data]}")
@@ -216,7 +241,14 @@ def analyze_flood():
                     'classification_report': report,
                     'flood_risk_times': flood_risk_times
                 }
-                region_result['flood_risk_times'] = flood_risk_times
+
+                # Create and save bar chart
+                bar_chart_url = bar_chart(flood_risk_times, region)
+                line_chart_url = line_chart(flood_risk_times, region)
+
+                region_result['bar_chart_url'] = bar_chart_url
+                region_result['line_chart_url'] = line_chart_url
+
                 all_regions_data.append(region_result)
             else:
                 logging.error(f"Failed to train a model for {region}.")
@@ -233,7 +265,6 @@ def analyze_flood():
     except Exception as e:
         logging.error(f"An error occurred: {e}")
         return jsonify({'error': str(e)}), 500
-
 
 if __name__ == '__main__':
     app.run(debug=True)
