@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:early_flash_flood_detection/views/UserProfileScreen.dart';
 import 'package:early_flash_flood_detection/views/LoginScreen.dart';
-import 'package:flutter_image/network.dart';
 
 class AnalyzerDashboard extends StatelessWidget {
   final String userId;
@@ -31,13 +30,13 @@ class AnalyzerDashboard extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("Analyzer Dashboard"),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Color.fromARGB(255, 48, 174, 237),
       ),
       drawer: Drawer(
         child: ListView(
           children: [
             DrawerHeader(
-              decoration: BoxDecoration(color: Colors.deepPurple),
+              decoration: BoxDecoration(color: Color.fromARGB(255, 48, 174, 237)),
               child: Text('Menu', style: TextStyle(color: Colors.white, fontSize: 24)),
             ),
             ListTile(

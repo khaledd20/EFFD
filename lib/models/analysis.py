@@ -12,6 +12,7 @@ from sklearn.model_selection import KFold, train_test_split, GridSearchCV
 from sklearn.metrics import accuracy_score, classification_report
 import numpy as np
 import logging
+from gevent.pywsgi import WSGIServer
 
 # Initialize Firebase Admin SDK
 cred = credentials.Certificate(r'C:\Users\khali\Desktop\early_flash_flood_detection\lib\early-flash-flood-detection-firebase-adminsdk-vpxfs-5eb9edf55c.json')
@@ -267,4 +268,5 @@ def analyze_flood():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    http_server = WSGIServer(('', 5000), app)
+    http_server.serve_forever()
