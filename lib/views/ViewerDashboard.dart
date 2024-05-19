@@ -17,6 +17,11 @@ class _ViewerDashboardState extends State<ViewerDashboard> {
   final floodEventAnalysis = FloodEventAnalysis(); // Instance of the controller
 
   @override
+  void initState() {
+    super.initState();
+    NotificationsScreen.checkForHighRisk(); // Call the static method to check for high risk notifications
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -30,7 +35,7 @@ class _ViewerDashboardState extends State<ViewerDashboard> {
                 color: Colors.blue,
               ),
               child: Text(
-                'Hello, John!',
+                'Welcome to EFFD',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 24,
