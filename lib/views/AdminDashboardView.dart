@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../controllers/UserController.dart';
+import 'LoginScreen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,10 +19,32 @@ class AdminDashboardScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Admin Dashboard'),
+        backgroundColor: const Color.fromARGB(255, 39, 122, 247),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(color:const Color.fromARGB(255, 39, 122, 247)),
+              child: Text(
+                'Menu',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.exit_to_app, color:const Color.fromARGB(255, 39, 122, 247)),
+              title: Text('Logout'),
+              onTap: () {
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+              },
+            ),
+          ],
+        ),
       ),
       body: UserList(userController: userController),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddUserScreen(context),
+        backgroundColor:const Color.fromARGB(255, 39, 122, 247),
         child: Icon(Icons.add),
       ),
     );
@@ -61,33 +84,36 @@ class _UserListState extends State<UserList> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Text("Error: ${snapshot.error}");
+          return Center(child: Text("Error: ${snapshot.error}"));
         } else if (snapshot.hasData) {
           return ListView.builder(
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
               var user = snapshot.data![index];
-              return ListTile(
-                title: Text(user.get('username')),
-                subtitle: Text(user.get('email')),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.edit),
-                      onPressed: () => _showEditUserScreen(context, user),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.delete),
-                      onPressed: () => widget.userController.deleteUser(context, user.id, user.get('role')),
-                    ),
-                  ],
+              return Card(
+                margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                child: ListTile(
+                  title: Text(user.get('username')),
+                  subtitle: Text(user.get('email')),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.edit, color:const Color.fromARGB(255, 39, 122, 247)),
+                        onPressed: () => _showEditUserScreen(context, user),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => widget.userController.deleteUser(context, user.id, user.get('role')),
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
           );
         } else {
-          return Text("No data available");
+          return Center(child: Text("No data available"));
         }
       },
     );
@@ -100,7 +126,6 @@ class _UserListState extends State<UserList> {
     );
   }
 }
-
 
 class AddUserScreen extends StatefulWidget {
   final UserController userController;
@@ -126,16 +151,19 @@ class _AddUserScreenState extends State<AddUserScreen> {
         children: [
           TextField(
             controller: _usernameController,
-            decoration: InputDecoration(labelText: 'Username'),
+            decoration: InputDecoration(labelText: 'Username', border: OutlineInputBorder()),
           ),
+          SizedBox(height: 8),
           TextField(
             controller: _emailController,
-            decoration: InputDecoration(labelText: 'Email'),
+            decoration: InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
           ),
+          SizedBox(height: 8),
           TextField(
             controller: _passwordController,
-            decoration: InputDecoration(labelText: 'Password'),
+            decoration: InputDecoration(labelText: 'Password', border: OutlineInputBorder()),
           ),
+          SizedBox(height: 8),
           DropdownButtonFormField<String>(
             value: _selectedRole,
             onChanged: (String? newValue) {
@@ -147,7 +175,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
             },
             decoration: InputDecoration(
               labelText: 'Role',
-              border: OutlineInputBorder(), // Optional: Adds border to the dropdown
+              border: OutlineInputBorder(),
             ),
             items: <String>['analyzer', 'viewer']
                 .map<DropdownMenuItem<String>>((String value) {
@@ -157,6 +185,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
               );
             }).toList(),
           ),
+          SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {
               widget.userController.addUser(
@@ -166,7 +195,9 @@ class _AddUserScreenState extends State<AddUserScreen> {
                 _passwordController.text,
                 _selectedRole,
               );
+              Navigator.pop(context);
             },
+            style: ElevatedButton.styleFrom(backgroundColor :const Color.fromARGB(255, 39, 122, 247)),
             child: Text('Add User'),
           ),
         ],
@@ -174,6 +205,7 @@ class _AddUserScreenState extends State<AddUserScreen> {
     );
   }
 }
+
 class EditUserScreen extends StatefulWidget {
   final UserController userController;
   final DocumentSnapshot user;
@@ -208,16 +240,19 @@ class _EditUserScreenState extends State<EditUserScreen> {
         children: [
           TextField(
             controller: _usernameController,
-            decoration: InputDecoration(labelText: 'Username'),
+            decoration: InputDecoration(labelText: 'Username', border: OutlineInputBorder()),
           ),
+          SizedBox(height: 8),
           TextField(
             controller: _emailController,
-            decoration: InputDecoration(labelText: 'Email'),
+            decoration: InputDecoration(labelText: 'Email', border: OutlineInputBorder()),
           ),
+          SizedBox(height: 8),
           TextField(
             controller: _passwordController,
-            decoration: InputDecoration(labelText: 'Password'),
+            decoration: InputDecoration(labelText: 'Password', border: OutlineInputBorder()),
           ),
+          SizedBox(height: 8),
           DropdownButtonFormField<String>(
             value: _selectedRole,
             onChanged: (String? newValue) {
@@ -229,7 +264,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
             },
             decoration: InputDecoration(
               labelText: 'Role',
-              border: OutlineInputBorder(), // Optional: Adds border to the dropdown
+              border: OutlineInputBorder(),
             ),
             items: <String>['analyzer', 'viewer']
                 .map<DropdownMenuItem<String>>((String value) {
@@ -239,6 +274,7 @@ class _EditUserScreenState extends State<EditUserScreen> {
               );
             }).toList(),
           ),
+          SizedBox(height: 16),
           ElevatedButton(
             onPressed: () {
               widget.userController.updateUser(
@@ -249,7 +285,9 @@ class _EditUserScreenState extends State<EditUserScreen> {
                 _passwordController.text,
                 _selectedRole,
               );
+              Navigator.pop(context);
             },
+            style: ElevatedButton.styleFrom(backgroundColor :const Color.fromARGB(255, 39, 122, 247)),
             child: Text('Update User'),
           ),
         ],
@@ -257,4 +295,3 @@ class _EditUserScreenState extends State<EditUserScreen> {
     );
   }
 }
- 

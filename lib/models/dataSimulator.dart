@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'dart:math';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DataGenerator {
@@ -36,7 +38,11 @@ class DataGenerator {
       await _generateAndSaveDataForDay(documentReference, now);
 
       // After saving the data, trigger flood analysis in main.py
-      await triggerFloodAnalysis();
+      if (kIsWeb) {
+        await triggerFloodAnalysisWeb();
+      } else {
+        await triggerFloodAnalysisAndroid();
+      }
     }
   }
 
@@ -53,9 +59,56 @@ class DataGenerator {
     await documentReference.set(dailyData);
   }
 
-  // Method to trigger flood analysis in main.py
-  Future<void> triggerFloodAnalysis() async {
+  // Method to trigger flood analysis in main.py for web
+  Future<void> triggerFloodAnalysisWeb() async {
     final url = 'http://localhost:5000/analyze-flood';
-    await http.post(Uri.parse(url));
+    try {
+      final response = await http.post(Uri.parse(url));
+      if (response.statusCode == 200) {
+        print('Flood analysis triggered successfully (web).');
+      } else {
+        print('Failed to trigger flood analysis (web): ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error triggering flood analysis (web): $e');
+    }
+  }
+
+  // Method to trigger flood analysis in main.py for Android
+  Future<void> triggerFloodAnalysisAndroid() async {
+    try {
+      final ip = await _getLocalIpAddress();
+      final url = 'http://$ip:5000/analyze-flood';
+      final response = await http.post(Uri.parse(url));
+      if (response.statusCode == 200) {
+        print('Flood analysis triggered successfully (Android).');
+      } else {
+        print('Failed to trigger flood analysis (Android): ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error triggering flood analysis (Android): $e');
+    }
+  }
+
+  // Helper method to get the local IP address
+  Future<String> _getLocalIpAddress() async {
+    for (var interface in await NetworkInterface.list()) {
+      for (var addr in interface.addresses) {
+        if (addr.type == InternetAddressType.IPv4 && !addr.isLoopback) {
+          if (_isPrivateIpAddress(addr.address)) {
+            return addr.address;
+          }
+        }
+      }
+    }
+    throw Exception('No IPv4 address found');
+  }
+
+  // Helper method to check if an IP address is private
+  bool _isPrivateIpAddress(String ip) {
+    final privateIpPattern = RegExp(
+      r'^(10\.|192\.168|172\.(1[6-9]|2[0-9]|3[0-1]))'
+    );
+    return privateIpPattern.hasMatch(ip);
   }
 }

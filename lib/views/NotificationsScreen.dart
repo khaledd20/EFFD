@@ -1,10 +1,17 @@
+import 'package:early_flash_flood_detection/views/analyzerDashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
+import 'LoginScreen.dart';
+import 'UserProfileScreen.dart';
+
 class NotificationsScreen extends StatefulWidget {
+   final String userId;
+
+  NotificationsScreen({required this.userId});
   @override
   _NotificationsScreenState createState() => _NotificationsScreenState();
 
@@ -140,6 +147,56 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Notifications'),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Text(
+                'Welcome to EFFD',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.account_circle),
+              title: Text('Dashboard'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => AnalyzerDashboard(userId: widget.userId)));
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.account_circle),
+              title: Text('Profile'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => UserProfileScreen(userId: widget.userId)));
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.notifications),
+              title: const Text('Notifications'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => NotificationsScreen(userId: widget.userId)),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.exit_to_app),
+              title: Text('Logout'),
+              onTap: () {
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
+              },
+            ),
+          ],
+        ),
       ),
       body: ListView.builder(
         itemCount: notifications.length,
