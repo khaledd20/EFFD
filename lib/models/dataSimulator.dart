@@ -38,11 +38,8 @@ class DataGenerator {
       await _generateAndSaveDataForDay(documentReference, now);
 
       // After saving the data, trigger flood analysis in main.py
-      if (kIsWeb) {
-        await triggerFloodAnalysisWeb();
-      } else {
-        await triggerFloodAnalysisAndroid();
-      }
+      await triggerFloodAnalysis();
+      
     }
   }
 
@@ -59,56 +56,10 @@ class DataGenerator {
     await documentReference.set(dailyData);
   }
 
-  // Method to trigger flood analysis in main.py for web
-  Future<void> triggerFloodAnalysisWeb() async {
+  Future<void> triggerFloodAnalysis() async {
     final url = 'http://localhost:5000/analyze-flood';
-    try {
-      final response = await http.post(Uri.parse(url));
-      if (response.statusCode == 200) {
-        print('Flood analysis triggered successfully (web).');
-      } else {
-        print('Failed to trigger flood analysis (web): ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error triggering flood analysis (web): $e');
-    }
+    await http.post(Uri.parse(url));
   }
 
-  // Method to trigger flood analysis in main.py for Android
-  Future<void> triggerFloodAnalysisAndroid() async {
-    try {
-      final ip = await _getLocalIpAddress();
-      final url = 'http://$ip:5000/analyze-flood';
-      final response = await http.post(Uri.parse(url));
-      if (response.statusCode == 200) {
-        print('Flood analysis triggered successfully (Android).');
-      } else {
-        print('Failed to trigger flood analysis (Android): ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error triggering flood analysis (Android): $e');
-    }
-  }
 
-  // Helper method to get the local IP address
-  Future<String> _getLocalIpAddress() async {
-    for (var interface in await NetworkInterface.list()) {
-      for (var addr in interface.addresses) {
-        if (addr.type == InternetAddressType.IPv4 && !addr.isLoopback) {
-          if (_isPrivateIpAddress(addr.address)) {
-            return addr.address;
-          }
-        }
-      }
-    }
-    throw Exception('No IPv4 address found');
-  }
-
-  // Helper method to check if an IP address is private
-  bool _isPrivateIpAddress(String ip) {
-    final privateIpPattern = RegExp(
-      r'^(10\.|192\.168|172\.(1[6-9]|2[0-9]|3[0-1]))'
-    );
-    return privateIpPattern.hasMatch(ip);
-  }
 }

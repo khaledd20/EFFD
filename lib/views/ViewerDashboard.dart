@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import '../controllers/FloodEventAnalysis.dart'; // Importing the controller
+import '../controllers/FloodEventAnalysis.dart'; 
+import '../controllers/AlertGeneration.dart'; // Importing the controller for alert generation
+
 import '../views/NotificationsScreen.dart';
 import '../views/UserProfileScreen.dart';
 import '../views/LoginScreen.dart';
-import 'analyzerDashboard.dart';
 
 class ViewerDashboard extends StatefulWidget {
   final String userId;
@@ -16,11 +17,13 @@ class ViewerDashboard extends StatefulWidget {
 
 class _ViewerDashboardState extends State<ViewerDashboard> {
   final floodEventAnalysis = FloodEventAnalysis(); // Instance of the controller
+  final alertGeneration = AlertGeneration(); // Instance of the alert generation controller
+
 
   @override
   void initState() {
     super.initState();
-    NotificationsScreen.checkForHighRisk(); // Call the static method to check for high risk notifications
+    alertGeneration.checkForHighRisk(); // Call the static method to check for high risk notifications
   }
   @override
   Widget build(BuildContext context) {
@@ -44,10 +47,10 @@ class _ViewerDashboardState extends State<ViewerDashboard> {
               ),
             ),
             ListTile(
-              leading: Icon(Icons.account_circle),
+              leading: Icon(Icons.dashboard),
               title: Text('Dashboard'),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => AnalyzerDashboard(userId: widget.userId)));
+                Navigator.push(context, MaterialPageRoute(builder: (context) => ViewerDashboard(userId: widget.userId)));
               },
             ),
             ListTile(

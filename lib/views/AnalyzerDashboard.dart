@@ -1,29 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart';
+import 'package:early_flash_flood_detection/controllers/FloodEventAnalysis.dart';
 import 'package:early_flash_flood_detection/views/UserProfileScreen.dart';
 import 'package:early_flash_flood_detection/views/LoginScreen.dart';
 
 class AnalyzerDashboard extends StatelessWidget {
   final String userId;
+  final FloodEventAnalysis floodEventAnalysis = FloodEventAnalysis(); // Controller instance
 
   AnalyzerDashboard({required this.userId});
-
-  Stream<Map<String, dynamic>> getTodayFloodData() {
-    var today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    return FirebaseFirestore.instance
-        .collection('floodData')
-        .where('date', isEqualTo: today)
-        .snapshots()
-        .map((snapshot) => snapshot.docs
-            .fold<Map<String, dynamic>>({}, (Map<String, dynamic> acc, doc) {
-              (doc.data()['all_regions_data'] as List).forEach((regionData) {
-                String region = regionData['region'];
-                acc[region] = regionData;
-              });
-              return acc;
-            }));
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +22,13 @@ class AnalyzerDashboard extends StatelessWidget {
             DrawerHeader(
               decoration: BoxDecoration(color: Color.fromARGB(255, 48, 174, 237)),
               child: Text('Menu', style: TextStyle(color: Colors.white, fontSize: 24)),
+            ),
+            ListTile(
+              leading: Icon(Icons.dashboard),
+              title: Text('Dashboard'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => AnalyzerDashboard(userId: userId)));
+              },
             ),
             ListTile(
               leading: Icon(Icons.account_circle),
@@ -57,7 +48,7 @@ class AnalyzerDashboard extends StatelessWidget {
         ),
       ),
       body: StreamBuilder<Map<String, dynamic>>(
-        stream: getTodayFloodData(),
+        stream: floodEventAnalysis.getTodayFloodData(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
