@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-
-import 'android_flow/android_login_screen.dart';
-import 'web_flow/web_login_screen.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'models/dataSimulator.dart';
+import 'views/LoginScreen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +17,10 @@ void main() async {
       appId: "1:625125091387:web:9f738a479d68d06a07541e",
     ),
   );
+
+    // Initialize and call DataGenerator here
+  final dataGenerator = DataGenerator();
+  await dataGenerator.ensureDailyDataGeneration();
   runApp(const MyApp());
 }
 
@@ -27,7 +31,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'EFFD',
-      home: kIsWeb ? WebLoginScreen() : AndroidLoginScreen(),
+      builder: EasyLoading.init(),
+      home: kIsWeb ? LoginScreen() : LoginScreen(),
     );
   }
 }
