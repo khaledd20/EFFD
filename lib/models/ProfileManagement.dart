@@ -5,7 +5,6 @@ class ProfileManagement {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   String get collectionName => kIsWeb ? 'webUsers' : 'androidUsers'; // Dynamic collection name based on platform
-
   Future<Map<String, dynamic>?> getProfileData(String userId) async {
     DocumentSnapshot snapshot = await firestore.collection(collectionName).doc(userId).get();
     return snapshot.data() as Map<String, dynamic>?;
@@ -23,7 +22,7 @@ class ProfileManagement {
 
   Future<bool> advancedUpdateProfileData(String userId, Map<String, dynamic> updatedData, String collection) async {
     try {
-      await firestore.collection(collectionName).doc(userId).update(updatedData);
+      await firestore.collection(collection).doc(userId).update(updatedData);
       return true;
     } catch (e) {
       print("Failed to update profile data: $e");

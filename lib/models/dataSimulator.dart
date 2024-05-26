@@ -1,7 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'dart:math';
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DataGenerator {

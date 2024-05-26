@@ -58,23 +58,29 @@ class UserManagement {
 
 
   void showCustomDialog(BuildContext context, String title, String content, {bool popOnClose = false}) {
-    showDialog(
+     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        title: Text(title),
-        content: Text(content),
-        actions: [
-          TextButton(
-            child: Text('OK'),
-            onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-              if (popOnClose) {
-                Navigator.of(context). pop(); // Optionally close the current screen
-              }
-            },
-          ),
-        ],
-      ),
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(content),
+          actions: [
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                if (Navigator.of(dialogContext).canPop()) {
+                  Navigator.of(dialogContext).pop(); // Close the dialog
+                }
+                if (popOnClose) {
+                  if (Navigator.of(context).canPop()) {
+                    Navigator.of(context).pop(); // Optionally close the current screen
+                  }
+                }
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

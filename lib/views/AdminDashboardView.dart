@@ -11,8 +11,25 @@ void main() async {
   runApp(MaterialApp(home: AdminDashboardScreen()));
 }
 
-class AdminDashboardScreen extends StatelessWidget {
+class AdminDashboardScreen extends StatefulWidget {
+  @override
+  _AdminDashboardScreenState createState() => _AdminDashboardScreenState();
+}
+
+class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   final UserController userController = UserController();
+
+  void _showAddUserScreen(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) => AddUserScreen(
+        userController: userController,
+        refreshData: () {
+          setState(() {}); // Refresh the AdminDashboardScreen to update the UserList
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,14 +42,14 @@ class AdminDashboardScreen extends StatelessWidget {
         child: ListView(
           children: [
             DrawerHeader(
-              decoration: BoxDecoration(color:const Color.fromARGB(255, 39, 122, 247)),
+              decoration: BoxDecoration(color: const Color.fromARGB(255, 39, 122, 247)),
               child: Text(
                 'Menu',
                 style: TextStyle(color: Colors.white, fontSize: 24),
               ),
             ),
             ListTile(
-              leading: Icon(Icons.exit_to_app, color:const Color.fromARGB(255, 39, 122, 247)),
+              leading: Icon(Icons.exit_to_app, color: const Color.fromARGB(255, 39, 122, 247)),
               title: Text('Logout'),
               onTap: () {
                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
@@ -44,20 +61,12 @@ class AdminDashboardScreen extends StatelessWidget {
       body: UserList(userController: userController),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddUserScreen(context),
-        backgroundColor:const Color.fromARGB(255, 39, 122, 247),
+        backgroundColor: const Color.fromARGB(255, 39, 122, 247),
         child: Icon(Icons.add),
       ),
     );
   }
-
-  void _showAddUserScreen(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (_) => AddUserScreen(userController: userController),
-    );
-  }
 }
-
 class UserList extends StatefulWidget {
   final UserController userController;
 
@@ -68,6 +77,14 @@ class UserList extends StatefulWidget {
 }
 
 class _UserListState extends State<UserList> {
+  Future<List<DocumentSnapshot>>? _futureUsers;
+
+  @override
+  void initState() {
+    super.initState();
+    _futureUsers = getUsers();
+  }
+
   Future<List<DocumentSnapshot>> getUsers() async {
     QuerySnapshot webUsers = await FirebaseFirestore.instance.collection("webUsers").get();
     QuerySnapshot androidUsers = await FirebaseFirestore.instance.collection("androidUsers").get();
@@ -76,10 +93,16 @@ class _UserListState extends State<UserList> {
     return combinedUsers;
   }
 
+  void refreshData() {
+    setState(() {
+      _futureUsers = getUsers();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<DocumentSnapshot>>(
-      future: getUsers(),
+      future: _futureUsers,
       builder: (BuildContext context, AsyncSnapshot<List<DocumentSnapshot>> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
@@ -99,12 +122,17 @@ class _UserListState extends State<UserList> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
-                        icon: Icon(Icons.edit, color:const Color.fromARGB(255, 39, 122, 247)),
+                        icon: Icon(Icons.edit, color: const Color.fromARGB(255, 39, 122, 247)),
                         onPressed: () => _showEditUserScreen(context, user),
                       ),
                       IconButton(
                         icon: Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => widget.userController.deleteUser(context, user.id, user.get('role')),
+                        onPressed: () async {
+                          bool success = await widget.userController.deleteUser(context, user.id, user.get('role'), refreshData);
+                          if (!success) {
+                            // Handle delete error if needed
+                          }
+                        },
                       ),
                     ],
                   ),
@@ -122,15 +150,15 @@ class _UserListState extends State<UserList> {
   void _showEditUserScreen(BuildContext context, DocumentSnapshot user) {
     showModalBottomSheet(
       context: context,
-      builder: (_) => EditUserScreen(userController: widget.userController, user: user as QueryDocumentSnapshot),
+      builder: (_) => EditUserScreen(userController: widget.userController, user: user as QueryDocumentSnapshot, refreshData: refreshData),
     );
   }
 }
-
 class AddUserScreen extends StatefulWidget {
   final UserController userController;
+  final Function refreshData;
 
-  AddUserScreen({required this.userController});
+  AddUserScreen({required this.userController, required this.refreshData});
 
   @override
   _AddUserScreenState createState() => _AddUserScreenState();
@@ -187,17 +215,20 @@ class _AddUserScreenState extends State<AddUserScreen> {
           ),
           SizedBox(height: 16),
           ElevatedButton(
-            onPressed: () {
-              widget.userController.addUser(
+            onPressed: () async {
+              bool success = await widget.userController.addUser(
                 context,
                 _usernameController.text,
                 _emailController.text,
                 _passwordController.text,
                 _selectedRole,
+                widget.refreshData,
               );
-              Navigator.pop(context);
+              if (success) {
+                Navigator.pop(context);
+              }
             },
-            style: ElevatedButton.styleFrom(backgroundColor :const Color.fromARGB(255, 39, 122, 247)),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 39, 122, 247)),
             child: Text('Add User'),
           ),
         ],
@@ -205,12 +236,12 @@ class _AddUserScreenState extends State<AddUserScreen> {
     );
   }
 }
-
 class EditUserScreen extends StatefulWidget {
   final UserController userController;
   final DocumentSnapshot user;
+  final Function refreshData;
 
-  EditUserScreen({required this.userController, required this.user});
+  EditUserScreen({required this.userController, required this.user, required this.refreshData});
 
   @override
   _EditUserScreenState createState() => _EditUserScreenState();
@@ -276,18 +307,21 @@ class _EditUserScreenState extends State<EditUserScreen> {
           ),
           SizedBox(height: 16),
           ElevatedButton(
-            onPressed: () {
-              widget.userController.updateUser(
+            onPressed: () async {
+              bool success = await widget.userController.updateUser(
                 context,
                 widget.user.id,
                 _usernameController.text,
                 _emailController.text,
                 _passwordController.text,
                 _selectedRole,
+                widget.refreshData,
               );
-              Navigator.pop(context);
+              if (success) {
+                Navigator.pop(context);
+              }
             },
-            style: ElevatedButton.styleFrom(backgroundColor :const Color.fromARGB(255, 39, 122, 247)),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color.fromARGB(255, 39, 122, 247)),
             child: Text('Update User'),
           ),
         ],
