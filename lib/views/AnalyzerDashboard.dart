@@ -16,12 +16,7 @@ class AnalyzerDashboard extends StatelessWidget {
         title: Text("Analyzer Dashboard"),
         backgroundColor: Color.fromARGB(255, 48, 174, 237),
         actions: [
-          IconButton(
-            icon: Icon(Icons.refresh),
-            onPressed: () {
-              // Add refresh logic here
-            },
-          ),
+          
         ],
       ),
       drawer: Drawer(

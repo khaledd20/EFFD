@@ -33,6 +33,8 @@ class MyApp extends StatelessWidget {
       title: 'EFFD',
       builder: EasyLoading.init(),
       home: kIsWeb ? LoginScreen() : LoginScreen(),
+      debugShowCheckedModeBanner: false,
+
     );
   }
 }
