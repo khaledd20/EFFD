@@ -3,6 +3,8 @@ import 'package:early_flash_flood_detection/controllers/FloodEventAnalysis.dart'
 import 'package:early_flash_flood_detection/views/UserProfileScreen.dart';
 import 'package:early_flash_flood_detection/views/LoginScreen.dart';
 
+import 'GenerateReport.dart';
+
 class AnalyzerDashboard extends StatelessWidget {
   final String userId;
   final FloodEventAnalysis floodEventAnalysis = FloodEventAnalysis(); // Controller instance
@@ -38,6 +40,13 @@ class AnalyzerDashboard extends StatelessWidget {
               title: Text('Profile'),
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => UserProfileScreen(userId: userId)));
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.description),
+              title: Text('Generate Report'),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => GenerateReport(userId: userId)));
               },
             ),
             ListTile(
