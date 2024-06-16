@@ -126,7 +126,7 @@ class AnalyzerDashboard extends StatelessWidget {
                                 Icon(Icons.verified, color: Colors.green),
                                 SizedBox(width: 8),
                                 Text(
-                                  "Accuracy: ${(data['accuracy'] ?? 0).toStringAsFixed(2)}%",
+                                  "Accuracy: ${(data['accuracy']*100 ?? 0).toStringAsFixed(2)}%",
                                   style: TextStyle(fontSize: 19, color: Colors.green),
                                 ),
                               ],
