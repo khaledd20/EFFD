@@ -40,7 +40,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     }
 
     bool passwordUpdated = false;
-    if (_passwordController.text.isNotEmpty) {
+    if (_passwordController.text != userData!['password']) {
       passwordUpdated = await profileManagement.updatePassword(widget.userId, _passwordController.text);
     }
 
